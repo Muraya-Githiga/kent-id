@@ -1,0 +1,91 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Kent Africa Digital Business Cards</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root { --primary: #4a90e2; --teal: #7ec8b5; --dark: #0a2540; }
+        body { font-family: 'Segoe UI', sans-serif; background: #f4f7f6; margin: 0; padding: 40px; display: flex; flex-wrap: wrap; gap: 30px; justify-content: center; }
+        
+        .card-wrapper { 
+            width: 360px; background: white; border-radius: 15px; overflow: hidden; 
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1); position: relative;
+        }
+
+        .header-gradient {
+            background: linear-gradient(180deg, var(--teal) 0%, var(--primary) 100%);
+            height: 200px; display: flex; flex-direction: column; align-items: center; justify-content: center; color: white;
+        }
+
+        .profile-img {
+            width: 100px; height: 100px; border-radius: 50%; border: 4px solid white;
+            object-fit: cover; margin-bottom: 10px; background: #eee;
+        }
+
+        .header-gradient h2 { margin: 0; font-size: 1.2rem; text-transform: uppercase; }
+        .header-gradient p { margin: 5px 0 0; font-size: 0.85rem; opacity: 0.9; }
+
+        .action-bar { display: flex; justify-content: center; gap: 15px; margin-top: -25px; }
+        .action-btn {
+            width: 50px; height: 50px; border-radius: 50%; background: white; 
+            display: flex; align-items: center; justify-content: center;
+            color: var(--primary); box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            text-decoration: none;
+        }
+
+        .details-section { padding: 30px 20px; }
+        .info-item { display: flex; align-items: center; padding: 12px 0; border-bottom: 1px solid #f9f9f9; }
+        .info-icon { width: 35px; color: var(--primary); }
+        .info-text label { display: block; font-size: 0.6rem; color: #bbb; text-transform: uppercase; }
+        .info-text span { font-size: 0.9rem; color: #333; font-weight: 500; }
+
+        .footer-actions { display: flex; }
+        .footer-btn { flex: 1; padding: 18px; border: none; font-weight: 600; cursor: pointer; color: white; display: flex; align-items: center; justify-content: center; gap: 8px; }
+        .btn-add { background: var(--dark); }
+        .btn-copy { background: var(--primary); }
+    </style>
+</head>
+<body>
+    <div id="app" style="display:contents;"></div>
+
+    <script>
+        const staffData = [{"Name": "Geoffrey Muraya", "Title": "Creative Designer", "Personal": "+254254719403433", "Office": "+254254714128210", "Email": "geoffrey.muraya@kent-africa.com", "Website": "www.kent-africa.com", "Address": "16 Muchai Road", "City": "Nairobi", "Photo": "photos/Geoffrey Muraya.jpg"}, {"Name": "Eng Philip Murungi", "Title": "Chief Executive Officer", "Personal": "+254722997314", "Office": "+254254714128210", "Email": "pmurungi@kent-africa.com", "Website": "www.kent-africa.com", "Address": "16 Muchai Road", "City": "Nairobi", "Photo": "photos/Eng Philip Murungi.jpg"}, {"Name": "Eng peter Okemwa", "Title": "Chief Technical  Officer.", "Personal": "+254721427898", "Office": "+254254714128210", "Email": "peter.okemwa@kent-africa.com", "Website": "www.kent-africa.com", "Address": "16 Muchai Road", "City": "Nairobi", "Photo": "photos/Eng peter Okemwa.jpg"}, {"Name": "Eng Wilfred Machuma", "Title": "Senior Project Manager-Team Leader", "Personal": "+254734622301", "Office": "+254254714128210", "Email": "wilfred.machuma@kent-africa.com", "Website": "www.kent-africa.com", "Address": "16 Muchai Road", "City": "Nairobi", "Photo": ""}, {"Name": "Abok Melchizedeck", "Title": "Operation$ Compliance Coordinator", "Personal": "+254735966228", "Office": "+254254714128210", "Email": "melchy.abok@kent-africa.com", "Website": "www.kent-africa.com", "Address": "16 Muchai Road", "City": "Nairobi", "Photo": ""}, {"Name": "Joseph Mutinda", "Title": "People Officer", "Personal": "+254706910957", "Office": "+254254714128210", "Email": "joseph.mutinda@kent-africa.com", "Website": "www.kent-africa.com", "Address": "16 Muchai Road", "City": "Nairobi", "Photo": "photos/Joseph Mutinda.jpg"}, {"Name": "Ann Mwaura", "Title": "Finance Officer", "Personal": "+254721703067", "Office": "+254254714128210", "Email": "anne.mwaura@kent-africa.com", "Website": "www.kent-africa.com", "Address": "16 Muchai Road", "City": "Nairobi", "Photo": "photos/Ann Mwaura.jpg"}, {"Name": "Mark Kirathe", "Title": "IT & Adminstration", "Personal": "+254723165988", "Office": "+254254714128210", "Email": "mark.kirathe@kent-africa.com", "Website": "www.kent-africa.com", "Address": "16 Muchai Road", "City": "Nairobi", "Photo": "photos/Mark Kirathe.jpg"}, {"Name": "Abdalla Oruko", "Title": "Team Leader-Coastal Region", "Personal": "+254715903030", "Office": "+254254714128210", "Email": "abdalla.oruko@kent-africa.com", "Website": "www.kent-africa.com", "Address": "16 Muchai Road", "City": "Nairobi", "Photo": "photos/Abdalla Oruko.jpg"}, {"Name": "Amos Kiplagat", "Title": "Structural Engineer", "Personal": "+254720134783", "Office": "+254254714128210", "Email": "amos.kiplagat@kent-africa.com", "Website": "www.kent-africa.com", "Address": "16 Muchai Road", "City": "Nairobi", "Photo": "photos/Amos Kiplagat.jpg"}, {"Name": "Angela Muthoni", "Title": "Project Cost Mngr", "Personal": "+254707237523", "Office": "+254254714128210", "Email": "angela.muthoni@kent-africa.com", "Website": "www.kent-africa.com", "Address": "16 Muchai Road", "City": "Nairobi", "Photo": "photos/Angela Muthoni.jpg"}, {"Name": "Geoffrey Muraya", "Title": "Creative Designer", "Personal": "+254719403433", "Office": "+254254714128210", "Email": "geoffrey.muraya@kent-africa.com", "Website": "www.kent-africa.com", "Address": "16 Muchai Road", "City": "Nairobi", "Photo": "photos/Geoffrey Muraya.jpg"}, {"Name": "John Kamanga", "Title": "Site Engineer", "Personal": "+254703227197", "Office": "+254254714128210", "Email": "john.kamanga@kent-africa.com", "Website": "www.kent-africa.com", "Address": "16 Muchai Road", "City": "Nairobi", "Photo": "photos/John Kamanga.jpg"}, {"Name": "leon Mudola", "Title": "Design Manager Architect", "Personal": "+254707674649", "Office": "+254254714128210", "Email": "leone.mudola@kent-africa.com", "Website": "www.kent-africa.com", "Address": "16 Muchai Road", "City": "Nairobi", "Photo": "photos/leon Mudola.jpg"}, {"Name": "Harrison Kanyua", "Title": "Corporate Assistant", "Personal": "+254716655457", "Office": "+254254714128210", "Email": "harrison.kanyua@kent-africa.com", "Website": "www.kent-africa.com", "Address": "16 Muchai Road", "City": "Nairobi", "Photo": "photos/Harrison Kanyua.jpg"}, {"Name": "Micheal Mugo Murangiri", "Title": "Technical Inspector", "Personal": "+254718168382", "Office": "+254254714128210", "Email": "michaelmugo50@gmail.com", "Website": "www.kent-africa.com", "Address": "16 Muchai Road", "City": "Nairobi", "Photo": "photos/Micheal Mugo Murangiri.jpg"}, {"Name": "Cloudia Jemo", "Title": "Assistant Cost project Mngr", "Personal": "+254768284870", "Office": "+254254714128210", "Email": "cloudia.jemo@kent-africa.com", "Website": "www.kent-africa.com", "Address": "16 Muchai Road", "City": "Nairobi", "Photo": "photos/Cloudia Jemo.jpg"}, {"Name": "Prisca Mutheu", "Title": "ESG Cordinator", "Personal": "+254745677474", "Office": "+254254714128210", "Email": "priscakay0416@gmail.com", "Website": "www.kent-africa.com", "Address": "16 Muchai Road", "City": "Nairobi", "Photo": "photos/Prisca Mutheu.jpg"}, {"Name": "Paul Kangethe Kamau", "Title": "Projects", "Personal": "+254112611978", "Office": "+254254714128210", "Email": "kangethekamau001@gmail.com ", "Website": "www.kent-africa.com", "Address": "16 Muchai Road", "City": "Nairobi", "Photo": "photos/Paul Kangethe Kamau.jpg"}, {"Name": "Jedidah Anyango", "Title": "Projects", "Personal": "+254748272562", "Office": "+254254714128210", "Email": "anyangojedida@gmail.com", "Website": "www.kent-africa.com", "Address": "16 Muchai Road", "City": "Nairobi", "Photo": ""}, {"Name": "Linet Ngina Mutave", "Title": "Projects", "Personal": "+254740817062", "Office": "+254254714128210", "Email": "linetmutava@gmail.com", "Website": "www.kent-africa.com", "Address": "16 Muchai Road", "City": "Nairobi", "Photo": "photos/Linet Ngina Mutave.jpg"}, {"Name": "Josephine Washalla", "Title": "Projects", "Personal": "+254790075516", "Office": "+254254714128210", "Email": "phinywashalla2@gmail.com", "Website": "www.kent-africa.com", "Address": "16 Muchai Road", "City": "Nairobi", "Photo": "photos/Josephine Washalla.jpg"}, {"Name": "Rodney Njuguna", "Title": "Projects", "Personal": "+254797180091", "Office": "+254254714128210", "Email": "rodney.njuguna@kent-africa.com", "Website": "www.kent-africa.com", "Address": "16 Muchai Road", "City": "Nairobi", "Photo": "photos/Rodney Njuguna.jpg"}, {"Name": "Peter Kimeli", "Title": "HSSEQ Implementor $ Inspector", "Personal": "+254727224900", "Office": "+254254714128210", "Email": "peter.kimeli@kent-africa.com", "Website": "www.kent-africa.com", "Address": "17 Muchai Road", "City": "Nairobi", "Photo": "photos/Peter Kimeli.jpg"}];
+        const app = document.getElementById('app');
+
+        staffData.forEach((staff) => {
+            const wrapper = document.createElement('div');
+            wrapper.className = 'card-wrapper';
+            
+            const imgSrc = staff.Photo ? staff.Photo : `https://ui-avatars.com/api/?name=${encodeURIComponent(staff.Name)}&background=0a2540&color=fff`;
+
+            wrapper.innerHTML = `
+                <div class="header-gradient">
+                    <img src="${imgSrc}" class="profile-img">
+                    <h2>${staff.Name}</h2>
+                    <p>${staff.Title}</p>
+                </div>
+                
+                <div class="action-bar">
+                    <a href="tel:${staff.Personal}" class="action-btn"><i class="fas fa-phone"></i></a>
+                    <a href="mailto:${staff.Email}" class="action-btn"><i class="fas fa-envelope"></i></a>
+                    <a href="https://${staff.Website}" target="_blank" class="action-btn"><i class="fas fa-globe"></i></a>
+                </div>
+
+                <div class="details-section">
+                    <div class="info-item"><div class="info-icon"><i class="fas fa-phone-alt"></i></div><div class="info-text"><label>Personal</label><span>${staff.Personal}</span></div></div>
+                    <div class="info-item"><div class="info-icon"><i class="fas fa-building"></i></div><div class="info-text"><label>Office</label><span>${staff.Office}</span></div></div>
+                    <div class="info-item" style="border:none;"><div class="info-icon"><i class="fas fa-envelope"></i></div><div class="info-text"><label>Email</label><span>${staff.Email}</span></div></div>
+                </div>
+
+                <div class="footer-actions">
+                    <button class="footer-btn btn-add"><i class="fas fa-user-plus"></i> Add Contact</button>
+                    <button class="footer-btn btn-copy"><i class="fas fa-copy"></i> Copy vCard</button>
+                </div>
+            `;
+            app.appendChild(wrapper);
+        });
+    </script>
+</body>
+</html>
