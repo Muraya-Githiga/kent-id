@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kent Africa Limited - Digital Business Card</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <style>
+        :root {
+            --primary-gradient: linear-gradient(135deg, #7DC4B4 0%, #4B77BE 100%);
+            --text-dark: #333333;
+            --text-light: #888888;
+            --accent-blue: #4B77BE;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f1f1f1;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+        }
+
+        /* Mobile Container: Hugs content to prevent the "void" gap */
+        .card-container {
+            width: 100%;
+            max-width: 420px;
+            background: white;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+            height: auto; /* Fixed: Hugs the content */
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            margin: 20px 0;
+            border-radius: 20px;
+        }
+
+        /* Header Section */
+        .header {
+            background: var(--primary-gradient);
+            padding: 40px 20px 60px 20px;
+            text-align: center;
+            color: white;
+            border-bottom-left-radius: 40px;
+            border-bottom-right-radius: 40px;
+            position: relative;
+        }
+
+        /* Profile Picture Styling */
+        .profile-pic-container {
+            width: 130px;
+            height: 130px;
+            border-radius: 50%;
+            border: 4px solid white;
+            margin: 0 auto 15px;
+            background-color: #fff;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+
+        .profile-pic {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        .header h1 { font-size: 20px; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 5px; font-weight: 600; }
+        .header p { font-size: 14px; opacity: 0.95; font-weight: 300; }
+
+        /* Floating Action Buttons */
+        .actions {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: -30px;
+            margin-bottom: 20px;
+            z-index: 10;
+            position: relative;
+        }
+
+        .icon-circle {
+            width: 55px;
+            height: 55px;
+            background: white;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            text-decoration: none;
+            font-size: 18px;
+            transition: transform 0.2s;
+        }
+
+        .icon-circle .fa-phone { color: #55acee; }
+        .icon-circle .fa-envelope { color: #888888; }
+        .icon-circle .fa-location-dot { color: #55acee; }
+        .icon-circle:hover { transform: scale(1.1); }
+
+        /* Content List */
+        .info-list { padding: 10px 25px; flex-grow: 1; }
+
+        .info-item {
+            display: flex;
+            align-items: center;
+            padding: 14px 0;
+            border-bottom: 1px solid #f5f5f5;
+        }
+
+        .info-icon {
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            margin-right: 15px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #b0b0b0;
+            background: #fafafa;
+            border: 1px solid #efefef;
+            font-size: 14px;
+        }
+
+        .info-content .label { font-size: 10px; color: var(--text-light); display: block; text-transform: capitalize; }
+        .info-content .value { font-size: 14px; color: var(--text-dark); font-weight: 500; text-decoration: none; word-break: break-all; }
+
+        /* Footer Button */
+        .footer { padding: 10px 25px 35px; }
+        
+        .add-contact-btn {
+            background: var(--accent-blue);
+            color: white;
+            border: none;
+            width: 100%;
+            padding: 16px;
+            border-radius: 12px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 4px 15px rgba(75, 119, 190, 0.3);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="card-container">
+        <div class="header">
+            <div class="profile-pic-container">
+                <img src="https://raw.githubusercontent.com/Muraya-Githiga/kent-id/main/photos/geoffrey-muraya.png" 
+                     alt="Staff Photo" 
+                     class="profile-pic" 
+                     onerror="this.src='https://via.placeholder.com/150';">
+            </div>
+            <h1>GEOFFREY MURAYA</h1>
+            <p>Design and Creative Lead</p>
+        </div>
+
+        <div class="actions">
+            <a href="tel:+2540719403433" class="icon-circle"><i class="fa-solid fa-phone"></i></a>
+            <a href="mailto:geoffrey.muraya@kent-africa.com" class="icon-circle"><i class="fa-solid fa-envelope"></i></a>
+            <a href="https://maps.google.com/?q=16+Muchai+Road+Nairobi" class="icon-circle" target="_blank"><i class="fa-solid fa-location-dot"></i></a>
+        </div>
+
+        <div class="info-list">
+            <div class="info-item">
+                <div class="info-icon"><i class="fa-solid fa-mobile-screen-button"></i></div>
+                <div class="info-content">
+                    <span class="label">Personal</span>
+                    <a href="tel:+2540719403433" class="value">+2540719403433</a>
+                </div>
+            </div>
+
+            <div class="info-item">
+                <div class="info-icon"><i class="fa-solid fa-building"></i></div>
+                <div class="info-content">
+                    <span class="label">Office</span>
+                    <a href="tel:+254714128210" class="value">+254714128210</a>
+                </div>
+            </div>
+
+            <div class="info-item">
+                <div class="info-icon"><i class="fa-solid fa-paper-plane"></i></div>
+                <div class="info-content">
+                    <span class="label">Email</span>
+                    <a href="mailto:geoffrey.muraya@kent-africa.com" class="value">geoffrey.muraya@kent-africa.com</a>
+                </div>
+            </div>
+
+            <div class="info-item">
+                <div class="info-icon"><i class="fa-solid fa-globe"></i></div>
+                <div class="info-content">
+                    <span class="label">Website</span>
+                    <a href="https://www.kent-africa.com" class="value" target="_blank">www.kent-africa.com</a>
+                </div>
+            </div>
+
+            <div class="info-item">
+                <div class="info-icon"><i class="fa-solid fa-map-location-dot"></i></div>
+                <div class="info-content">
+                    <span class="label">Location</span>
+                    <span class="value">16 Muchai Road, Nairobi, Kenya</span>
+                </div>
+            </div>
+            
+            <div class="info-item">
+                <div class="info-icon"><i class="fa-solid fa-briefcase"></i></div>
+                <div class="info-content">
+                    <span class="label">Kent Africa Limited</span>
+                    <span class="value">Design and Creative Lead</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <button class="add-contact-btn">
+                <i class="fa-solid fa-user-plus"></i> Add Contact
+            </button>
+        </div>
+    </div>
+
+</body>
+</html>
