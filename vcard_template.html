@@ -1,237 +1,359 @@
-<!DOCTYPE html>
+import csv
+import qrcode
+import os
+import shutil
+from datetime import datetime
+from urllib.parse import quote
+
+# --- CONFIGURATION ---
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+CSV_PATH = os.path.join(BASE_DIR, "staff_list.csv")
+
+# IMPORTANT: Set this based on your GitHub Pages settings:
+# Option 1: If serving from root of main branch -> GITHUB_PAGES_STRATEGY = "root"
+# Option 2: If serving from /docs folder -> GITHUB_PAGES_STRATEGY = "docs"
+GITHUB_PAGES_STRATEGY = "root"  # Change this if using /docs folder
+
+if GITHUB_PAGES_STRATEGY == "docs":
+    OUTPUT_DIR = os.path.join(BASE_DIR, "docs")
+else:
+    OUTPUT_DIR = BASE_DIR  # Put HTML files in root
+
+VCARD_DIR = os.path.join(BASE_DIR, "vcards")
+QR_DIR = os.path.join(BASE_DIR, "qrcodes")
+
+# Create directories
+os.makedirs(OUTPUT_DIR, exist_ok=True)
+os.makedirs(VCARD_DIR, exist_ok=True)
+os.makedirs(QR_DIR, exist_ok=True)
+
+# GitHub Configuration
+USERNAME = "Muraya-Githiga"
+REPO = "kent-id"
+BASE_URL = f"https://{USERNAME}.github.io/{REPO}/"
+
+def slugify(name):
+    """Convert name to URL-friendly slug"""
+    name = name.lower().strip()
+    # Replace spaces with dashes and remove special characters
+    name = re.sub(r'[^\w\s-]', '', name)
+    name = re.sub(r'[-\s]+', '-', name)
+    return name.strip('-')
+
+def clean_phone(phone):
+    """Format phone number"""
+    phone = str(phone).strip().replace(" ", "").replace("-", "")
+    if phone.startswith("0"):
+        phone = "+254" + phone[1:]
+    elif phone.startswith("7") and len(phone) == 9:
+        phone = "+254" + phone
+    elif not phone.startswith("+"):
+        phone = "+" + phone
+    
+    # Format nicely for display
+    if phone.startswith("+254"):
+        return phone[:4] + " " + phone[4:]
+    return phone
+
+def generate_vcard(row, filename):
+    """Generate vCard VCF file"""
+    name = row['Name'].strip()
+    title = row.get('Title', '').replace("$", "&")
+    email = row.get('Email', '').strip()
+    personal = clean_phone(row.get('PersonalPhone', ''))
+    office = clean_phone(row.get('OfficePhone', ''))
+    website = row.get('Website', 'www.kent-africa.com').strip()
+    address = row.get('Address', '16 Muchai Road').strip()
+    city = row.get('City', 'Nairobi').strip()
+    
+    vcard = f"""BEGIN:VCARD
+VERSION:3.0
+N:{name};;;
+FN:{name}
+ORG:Kent Africa Limited
+TITLE:{title}
+TEL;TYPE=CELL:{personal.replace(' ', '')}
+TEL;TYPE=WORK:{office.replace(' ', '')}
+EMAIL;TYPE=WORK:{email}
+URL:https://{website}
+ADR;TYPE=WORK:;;{address};{city};Nairobi;;00100;Kenya
+END:VCARD"""
+    
+    path = os.path.join(VCARD_DIR, f"{filename}.vcf")
+    with open(path, "w", encoding="utf-8") as f:
+        f.write(vcard.strip())
+    
+    return filename
+
+def generate_html(row, slug, vcard_file):
+    """Generate HTML card"""
+    name = row['Name'].strip()
+    title = row.get('Title', '').replace("$", "&")
+    email = row.get('Email', '').strip()
+    personal_phone = clean_phone(row.get('PersonalPhone', ''))
+    office_phone = clean_phone(row.get('OfficePhone', ''))
+    website = row.get('Website', 'www.kent-africa.com').strip()
+    address = row.get('Address', '16 Muchai Road').strip()
+    city = row.get('City', 'Nairobi').strip()
+    
+    # Photo URL - try png first, then jpg
+    photo_name_png = quote(name + ".png")
+    photo_name_jpg = quote(name + ".jpg")
+    photo_path = f"https://raw.githubusercontent.com/{USERNAME}/{REPO}/main/photos/{photo_name_png}"
+    
+    # Map URL
+    map_query = quote(f"{address}, {city}, Kenya")
+    map_url = f"https://www.google.com/maps/search/?api=1&query={map_query}"
+    
+    # vCard path (relative)
+    vcard_path = f"vcards/{vcard_file}.vcf"
+    
+    html = f"""<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>{name} - Kent Africa Limited</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {{ margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }}
+        body {{ font-family: 'Inter', sans-serif; background: #f5f5f5; display: flex; justify-content: center; min-height: 100vh; }}
+        .card-container {{ width: 100%; max-width: 430px; background: white; min-height: 100vh; position: relative; }}
+        .header {{ background: linear-gradient(180deg, #5DBCA5 0%, #4A7CB8 100%); padding: 50px 20px 80px; text-align: center; border-bottom-left-radius: 30px; border-bottom-right-radius: 30px; }}
+        .profile-pic-container {{ width: 110px; height: 110px; border-radius: 50%; border: 4px solid white; margin: 0 auto 20px; overflow: hidden; background: white; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }}
+        .profile-pic {{ width: 100%; height: 100%; object-fit: cover; }}
+        .name {{ color: white; font-size: 24px; font-weight: 700; margin-bottom: 8px; text-transform: uppercase; }}
+        .title {{ color: rgba(255,255,255,0.95); font-size: 16px; font-weight: 400; }}
+        .floating-actions {{ display: flex; justify-content: center; gap: 20px; margin-top: -35px; position: relative; z-index: 10; padding: 0 20px; }}
+        .action-btn {{ width: 65px; height: 65px; border-radius: 50%; background: white; border: none; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 15px rgba(0,0,0,0.1); cursor: pointer; text-decoration: none; }}
+        .action-btn i {{ font-size: 22px; color: #4A7CB8; }}
+        .content {{ padding: 30px 25px 100px; }}
+        .info-item {{ display: flex; align-items: flex-start; padding: 18px 0; border-bottom: 1px solid #f0f0f0; }}
+        .info-icon {{ width: 40px; height: 40px; min-width: 40px; border-radius: 50%; background: #f8f9fa; display: flex; align-items: center; justify-content: center; margin-right: 15px; margin-top: 2px; }}
+        .info-icon i {{ color: #999; font-size: 16px; }}
+        .info-content {{ flex: 1; }}
+        .info-label {{ font-size: 12px; color: #999; margin-bottom: 4px; text-transform: capitalize; }}
+        .info-value {{ font-size: 16px; color: #333; font-weight: 500; text-decoration: none; display: block; line-height: 1.4; }}
+        a.info-value {{ color: #333; }}
+        .map-btn {{ display: inline-block; margin-top: 8px; padding: 6px 14px; background: #f0f4ff; color: #4A7CB8; border-radius: 20px; font-size: 13px; font-weight: 500; text-decoration: none; }}
+        .footer {{ position: fixed; bottom: 0; width: 100%; max-width: 430px; padding: 15px 25px 25px; background: white; box-shadow: 0 -2px 10px rgba(0,0,0,0.05); }}
+        .add-contact-btn {{ width: 100%; padding: 16px; background: #4A7CB8; color: white; border: none; border-radius: 10px; font-size: 16px; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 10px; cursor: pointer; text-decoration: none; }}
+        @media (min-width: 431px) {{ .card-container {{ min-height: auto; border-radius: 0; }} .footer {{ position: relative; }} }}
+    </style>
+</head>
+<body>
+<div class="card-container">
+    <div class="header">
+        <div class="profile-pic-container">
+            <img src="{photo_path}" alt="{name}" class="profile-pic" 
+                 onerror="this.onerror=null; this.src='{photo_path.replace('.png', '.jpg')}'; this.onerror=function(){{this.src='data:image/svg+xml,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'110\' height=\'110\'><rect width=\'110\' height=\'110\' fill=\'%23f0f0f0\'/><text x=\'55\' y=\'55\' font-family=\'sans-serif\' font-size=\'40\' fill=\'%23999\' text-anchor=\'middle\' dy=\'.3em\'>{name[0]}</text></svg>';}}">
+        </div>
+        <div class="name">{name}</div>
+        <div class="title">{title}</div>
+    </div>
+    <div class="floating-actions">
+        <a href="tel:{personal_phone.replace(' ', '')}" class="action-btn"><i class="fa-solid fa-phone"></i></a>
+        <a href="mailto:{email}" class="action-btn"><i class="fa-solid fa-envelope"></i></a>
+        <a href="{map_url}" class="action-btn" target="_blank"><i class="fa-solid fa-location-dot"></i></a>
+    </div>
+    <div class="content">
+        <div class="info-item">
+            <div class="info-icon"><i class="fa-solid fa-phone"></i></div>
+            <div class="info-content">
+                <div class="info-label">Personal</div>
+                <a href="tel:{personal_phone.replace(' ', '')}" class="info-value">{personal_phone}</a>
+            </div>
+        </div>
+        <div class="info-item">
+            <div class="info-icon"><i class="fa-solid fa-building"></i></div>
+            <div class="info-content">
+                <div class="info-label">Office</div>
+                <a href="tel:{office_phone.replace(' ', '')}" class="info-value">{office_phone}</a>
+            </div>
+        </div>
+        <div class="info-item">
+            <div class="info-icon"><i class="fa-solid fa-envelope"></i></div>
+            <div class="info-content">
+                <div class="info-label">Email</div>
+                <a href="mailto:{email}" class="info-value">{email}</a>
+            </div>
+        </div>
+        <div class="info-item">
+            <div class="info-icon"><i class="fa-solid fa-globe"></i></div>
+            <div class="info-content">
+                <div class="info-label">website</div>
+                <a href="https://{website}" class="info-value" target="_blank">{website}</a>
+            </div>
+        </div>
+        <div class="info-item">
+            <div class="info-icon"><i class="fa-solid fa-location-dot"></i></div>
+            <div class="info-content">
+                <div class="info-label">Location</div>
+                <div class="info-value">{address}, {city}, Nairobi, 2897 - 00100, Kenya</div>
+                <a href="{map_url}" class="map-btn" target="_blank">Show on Map</a>
+            </div>
+        </div>
+        <div class="info-item">
+            <div class="info-icon"><i class="fa-solid fa-briefcase"></i></div>
+            <div class="info-content">
+                <div class="info-label">Kent Africa Limited</div>
+                <div class="info-value">{title}</div>
+            </div>
+        </div>
+    </div>
+    <div class="footer">
+        <a href="{vcard_path}" download="{slug}.vcf" class="add-contact-btn">
+            <i class="fa-regular fa-user"></i> Add Contact
+        </a>
+    </div>
+</div>
+</body>
+</html>"""
+    
+    return html
+
+def create_index_html(files):
+    """Create an index page listing all cards"""
+    html = """<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kent Africa Limited - Digital Business Card</title>
-    
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
-    
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    
+    <title>Kent Africa Limited - Staff Directory</title>
     <style>
-        :root {
-            --primary-gradient: linear-gradient(135deg, #7DC4B4 0%, #4B77BE 100%);
-            --text-dark: #333333;
-            --text-light: #888888;
-            --accent-blue: #4B77BE;
-        }
-
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-
-        body {
-            font-family: 'Poppins', sans-serif;
-            background-color: #f1f1f1;
-            display: flex;
-            justify-content: center;
-            align-items: flex-start;
-            min-height: 100vh;
-        }
-
-        /* Mobile Container: Hugs content to prevent the "void" gap */
-        .card-container {
-            width: 100%;
-            max-width: 420px;
-            background: white;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.15);
-            height: auto; /* Fixed: Hugs the content */
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-            margin: 20px 0;
-            border-radius: 20px;
-        }
-
-        /* Header Section */
-        .header {
-            background: var(--primary-gradient);
-            padding: 40px 20px 60px 20px;
-            text-align: center;
-            color: white;
-            border-bottom-left-radius: 40px;
-            border-bottom-right-radius: 40px;
-            position: relative;
-        }
-
-        /* Profile Picture Styling */
-        .profile-pic-container {
-            width: 130px;
-            height: 130px;
-            border-radius: 50%;
-            border: 4px solid white;
-            margin: 0 auto 15px;
-            background-color: #fff;
-            overflow: hidden;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-        }
-
-        .profile-pic {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            display: block;
-        }
-
-        .header h1 { font-size: 20px; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 5px; font-weight: 600; }
-        .header p { font-size: 14px; opacity: 0.95; font-weight: 300; }
-
-        /* Floating Action Buttons */
-        .actions {
-            display: flex;
-            justify-content: center;
-            gap: 15px;
-            margin-top: -30px;
-            margin-bottom: 20px;
-            z-index: 10;
-            position: relative;
-        }
-
-        .icon-circle {
-            width: 55px;
-            height: 55px;
-            background: white;
-            border-radius: 50%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-            text-decoration: none;
-            font-size: 18px;
-            transition: transform 0.2s;
-        }
-
-        .icon-circle .fa-phone { color: #55acee; }
-        .icon-circle .fa-envelope { color: #888888; }
-        .icon-circle .fa-location-dot { color: #55acee; }
-        .icon-circle:hover { transform: scale(1.1); }
-
-        /* Content List */
-        .info-list { padding: 10px 25px; flex-grow: 1; }
-
-        .info-item {
-            display: flex;
-            align-items: center;
-            padding: 14px 0;
-            border-bottom: 1px solid #f5f5f5;
-        }
-
-        .info-icon {
-            width: 38px;
-            height: 38px;
-            border-radius: 50%;
-            margin-right: 15px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            color: #b0b0b0;
-            background: #fafafa;
-            border: 1px solid #efefef;
-            font-size: 14px;
-        }
-
-        .info-content .label { font-size: 10px; color: var(--text-light); display: block; text-transform: capitalize; }
-        .info-content .value { font-size: 14px; color: var(--text-dark); font-weight: 500; text-decoration: none; word-break: break-all; }
-
-        /* Footer Button */
-        .footer { padding: 10px 25px 35px; }
-        
-        .add-contact-btn {
-            background: var(--accent-blue);
-            color: white;
-            border: none;
-            width: 100%;
-            padding: 16px;
-            border-radius: 12px;
-            font-size: 15px;
-            font-weight: 600;
-            cursor: pointer;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 10px;
-            box-shadow: 0 4px 15px rgba(75, 119, 190, 0.3);
-        }
+        body { font-family: 'Inter', sans-serif; max-width: 600px; margin: 50px auto; padding: 20px; background: #f5f5f5; }
+        h1 { color: #4A7CB8; text-align: center; margin-bottom: 30px; }
+        .staff-list { background: white; border-radius: 15px; padding: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .staff-item { display: flex; align-items: center; padding: 15px; border-bottom: 1px solid #eee; text-decoration: none; color: #333; }
+        .staff-item:last-child { border-bottom: none; }
+        .staff-item:hover { background: #f8f9fa; border-radius: 8px; }
+        .icon { width: 40px; height: 40px; background: linear-gradient(135deg, #5DBCA5 0%, #4A7CB8 100%); border-radius: 50%; margin-right: 15px; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; }
+        .name { font-weight: 600; }
+        .title { font-size: 13px; color: #666; margin-top: 2px; }
     </style>
 </head>
 <body>
-
-    <div class="card-container">
-        <div class="header">
-            <div class="profile-pic-container">
-                <img src="https://raw.githubusercontent.com/Muraya-Githiga/kent-id/main/photos/geoffrey-muraya.png" 
-                     alt="Staff Photo" 
-                     class="profile-pic" 
-                     onerror="this.src='https://via.placeholder.com/150';">
+    <h1>Kent Africa Limited</h1>
+    <div class="staff-list">"""
+    
+    for name, slug, title in files:
+        html += f'''
+        <a href="{slug}.html" class="staff-item">
+            <div class="icon">{name[0]}</div>
+            <div>
+                <div class="name">{name}</div>
+                <div class="title">{title}</div>
             </div>
-            <h1>GEOFFREY MURAYA</h1>
-            <p>Design and Creative Lead</p>
-        </div>
-
-        <div class="actions">
-            <a href="tel:+2540719403433" class="icon-circle"><i class="fa-solid fa-phone"></i></a>
-            <a href="mailto:geoffrey.muraya@kent-africa.com" class="icon-circle"><i class="fa-solid fa-envelope"></i></a>
-            <a href="https://maps.google.com/?q=16+Muchai+Road+Nairobi" class="icon-circle" target="_blank"><i class="fa-solid fa-location-dot"></i></a>
-        </div>
-
-        <div class="info-list">
-            <div class="info-item">
-                <div class="info-icon"><i class="fa-solid fa-mobile-screen-button"></i></div>
-                <div class="info-content">
-                    <span class="label">Personal</span>
-                    <a href="tel:+2540719403433" class="value">+2540719403433</a>
-                </div>
-            </div>
-
-            <div class="info-item">
-                <div class="info-icon"><i class="fa-solid fa-building"></i></div>
-                <div class="info-content">
-                    <span class="label">Office</span>
-                    <a href="tel:+254714128210" class="value">+254714128210</a>
-                </div>
-            </div>
-
-            <div class="info-item">
-                <div class="info-icon"><i class="fa-solid fa-paper-plane"></i></div>
-                <div class="info-content">
-                    <span class="label">Email</span>
-                    <a href="mailto:geoffrey.muraya@kent-africa.com" class="value">geoffrey.muraya@kent-africa.com</a>
-                </div>
-            </div>
-
-            <div class="info-item">
-                <div class="info-icon"><i class="fa-solid fa-globe"></i></div>
-                <div class="info-content">
-                    <span class="label">Website</span>
-                    <a href="https://www.kent-africa.com" class="value" target="_blank">www.kent-africa.com</a>
-                </div>
-            </div>
-
-            <div class="info-item">
-                <div class="info-icon"><i class="fa-solid fa-map-location-dot"></i></div>
-                <div class="info-content">
-                    <span class="label">Location</span>
-                    <span class="value">16 Muchai Road, Nairobi, Kenya</span>
-                </div>
-            </div>
-            
-            <div class="info-item">
-                <div class="info-icon"><i class="fa-solid fa-briefcase"></i></div>
-                <div class="info-content">
-                    <span class="label">Kent Africa Limited</span>
-                    <span class="value">Design and Creative Lead</span>
-                </div>
-            </div>
-        </div>
-
-        <div class="footer">
-            <button class="add-contact-btn">
-                <i class="fa-solid fa-user-plus"></i> Add Contact
-            </button>
-        </div>
+        </a>'''
+    
+    html += """
     </div>
-
 </body>
-</html>
+</html>"""
+    
+    with open(os.path.join(OUTPUT_DIR, "index.html"), "w", encoding="utf-8") as f:
+        f.write(html)
+
+def main():
+    print("🚀 Generating Digital Business Cards...")
+    print("=" * 60)
+    print(f"Strategy: {GITHUB_PAGES_STRATEGY.upper()}")
+    print(f"Output: {OUTPUT_DIR}")
+    print("=" * 60)
+    
+    import re  # Import here for slugify
+    
+    count = 0
+    duplicates = {}
+    generated_files = []
+    
+    try:
+        with open(CSV_PATH, 'r', encoding='utf-8-sig') as f:
+            reader = csv.DictReader(f)
+            
+            for row in reader:
+                if not row.get('Name'):
+                    continue
+                
+                name = row['Name'].strip()
+                base_slug = slugify(name)
+                
+                # Handle duplicates
+                if base_slug in duplicates:
+                    duplicates[base_slug] += 1
+                    slug = f"{base_slug}-{duplicates[base_slug]}"
+                else:
+                    duplicates[base_slug] = 0
+                    slug = base_slug
+                
+                # Generate vCard
+                vcard_file = generate_vcard(row, slug)
+                
+                # Generate HTML
+                html_content = generate_html(row, slug, vcard_file)
+                html_path = os.path.join(OUTPUT_DIR, f"{slug}.html")
+                
+                with open(html_path, 'w', encoding='utf-8') as f:
+                    f.write(html_content)
+                
+                # Generate QR Code - CRITICAL: This is the URL that must exist
+                card_url = f"{BASE_URL}{slug}.html"
+                
+                # Debug: Print URL for first few entries
+                if count < 3:
+                    print(f"📝 {name} -> {card_url}")
+                
+                qr = qrcode.QRCode(
+                    version=1,
+                    error_correction=qrcode.constants.ERROR_CORRECT_H,
+                    box_size=10,
+                    border=4,
+                )
+                qr.add_data(card_url)
+                qr.make(fit=True)
+                
+                img = qr.make_image(fill_color="#4A7CB8", back_color="white")
+                qr_path = os.path.join(QR_DIR, f"{slug}_QR.png")
+                img.save(qr_path)
+                
+                generated_files.append((name, slug, row.get('Title', 'Staff')))
+                count += 1
+                
+    except Exception as e:
+        print(f"❌ Error: {e}")
+        import traceback
+        traceback.print_exc()
+        return
+    
+    # Create index page
+    create_index_html(generated_files)
+    
+    # If using root strategy, also try to copy vcards to output
+    if GITHUB_PAGES_STRATEGY == "root":
+        # Copy vcards to output directory so they can be downloaded
+        vcards_output = os.path.join(OUTPUT_DIR, "vcards")
+        if os.path.exists(vcards_output):
+            shutil.rmtree(vcards_output)
+        shutil.copytree(VCARD_DIR, vcards_output)
+    
+    print("=" * 60)
+    print(f"✅ Generated {count} cards!")
+    print(f"\n📁 File Locations:")
+    for name, slug, _ in generated_files[:5]:  # Show first 5
+        print(f"   • {slug}.html")
+    if len(generated_files) > 5:
+        print(f"   ... and {len(generated_files)-5} more")
+    
+    print(f"\n🔗 Test URLs (check these in browser):")
+    for name, slug, _ in generated_files[:3]:
+        print(f"   {BASE_URL}{slug}.html")
+    
+    print(f"\n⚠️  DEPLOYMENT CHECKLIST:")
+    print(f"   1. GitHub Pages Source: {'Main branch /docs folder' if GITHUB_PAGES_STRATEGY == 'docs' else 'Main branch / (root)'}")
+    print(f"   2. Files to commit: {os.path.basename(OUTPUT_DIR)}/*")
+    print(f"   3. Wait 2-3 minutes after pushing for GitHub Pages to update")
+    print(f"   4. Test: {BASE_URL} (should show directory)")
+
+if __name__ == "__main__":
+    main()
