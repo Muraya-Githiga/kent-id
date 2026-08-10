@@ -1,76 +1,407 @@
-
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kent Africa Staff</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Kent Africa Limited - Staff Cards</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        body { font-family: sans-serif; background: #f4f7f6; margin: 0; display: flex; justify-content: center; }
-        .card { width: 100%; max-width: 400px; background: white; display: none; flex-direction: column; min-height: 100vh; box-shadow: 0 0 20px rgba(0,0,0,0.1); }
-        .card.active { display: flex; }
-        .header { background: linear-gradient(#7ec8b5, #4a90e2); padding: 40px 20px; text-align: center; color: white; }
-        .profile-img { width: 120px; height: 120px; border-radius: 50%; border: 4px solid white; object-fit: cover; background: white; }
-        .info { padding: 30px; flex-grow: 1; }
-        .btn-row { display: flex; border-top: 1px solid #eee; }
-        .btn { flex: 1; padding: 20px; border: none; color: white; font-weight: bold; cursor: pointer; }
-        .save { background: #0a2540; } .copy { background: #4a90e2; }
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        body { font-family: 'Inter', sans-serif; background: #f5f5f5; display: flex; justify-content: center; min-height: 100vh; }
+        .card-container { width: 100%; max-width: 430px; background: white; min-height: 100vh; position: relative; display: none; }
+        .card-container.active { display: block; }
+        .header { background: linear-gradient(180deg, #5DBCA5 0%, #4A7CB8 100%); padding: 50px 20px 80px; text-align: center; border-bottom-left-radius: 30px; border-bottom-right-radius: 30px; }
+        .profile-pic-container { width: 110px; height: 110px; border-radius: 50%; border: 4px solid white; margin: 0 auto 20px; overflow: hidden; background: white; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        .profile-pic { width: 100%; height: 100%; object-fit: cover; }
+        .name { color: white; font-size: 24px; font-weight: 700; margin-bottom: 8px; text-transform: uppercase; }
+        .title { color: rgba(255,255,255,0.95); font-size: 16px; font-weight: 400; }
+        .floating-actions { display: flex; justify-content: center; gap: 20px; margin-top: -35px; position: relative; z-index: 10; padding: 0 20px; }
+        .action-btn { width: 65px; height: 65px; border-radius: 50%; background: white; border: none; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 15px rgba(0,0,0,0.1); cursor: pointer; text-decoration: none; }
+        .action-btn i { font-size: 22px; color: #4A7CB8; }
+        .content { padding: 30px 25px 120px; }
+        .info-item { display: flex; align-items: flex-start; padding: 18px 0; border-bottom: 1px solid #f0f0f0; }
+        .info-icon { width: 40px; height: 40px; min-width: 40px; border-radius: 50%; background: #f8f9fa; display: flex; align-items: center; justify-content: center; margin-right: 15px; margin-top: 2px; }
+        .info-icon i { color: #999; font-size: 16px; }
+        .info-content { flex: 1; }
+        .info-label { font-size: 12px; color: #999; margin-bottom: 4px; text-transform: capitalize; }
+        .info-value { font-size: 16px; color: #333; font-weight: 500; text-decoration: none; display: block; line-height: 1.4; }
+        a.info-value { color: #333; }
+        .map-btn { display: inline-block; margin-top: 8px; padding: 6px 14px; background: #f0f4ff; color: #4A7CB8; border-radius: 20px; font-size: 13px; font-weight: 500; text-decoration: none; }
+        .footer { position: fixed; bottom: 0; width: 100%; max-width: 430px; padding: 15px 25px 25px; background: white; box-shadow: 0 -2px 10px rgba(0,0,0,0.05); }
+        .add-contact-btn { width: 100%; padding: 16px; background: #4A7CB8; color: white; border: none; border-radius: 10px; font-size: 16px; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 10px; cursor: pointer; text-decoration: none; }
+        @media (min-width: 431px) { .card-container { min-height: auto; } .footer { position: relative; } }
     </style>
 </head>
 <body>
-    <div id="container"></div>
+<div id="container"></div>
+<script>
+const data = [
+  {
+    "Name": "Geoffrey Muraya",
+    "Title": "Creative Designer",
+    "Personal": "+254719403433",
+    "Office": "+254714128210",
+    "Email": "geoffrey.muraya@kent-africa.com",
+    "Website": "www.kent-africa.com",
+    "Address": "16 Muchai Road",
+    "City": "Nairobi",
+    "id_tag": "GEOFFREYMURAYA"
+  },
+  {
+    "Name": "Eng Philip Murungi",
+    "Title": "Chief Executive Officer",
+    "Personal": "+254722997314",
+    "Office": "+254714128210",
+    "Email": "pmurungi@kent-africa.com",
+    "Website": "www.kent-africa.com",
+    "Address": "16 Muchai Road",
+    "City": "Nairobi",
+    "id_tag": "ENGPHILIPMURUNGI"
+  },
+  {
+    "Name": "Eng peter Okemwa",
+    "Title": "Chief Technical  Officer.",
+    "Personal": "+254721427898",
+    "Office": "+254714128210",
+    "Email": "peter.okemwa@kent-africa.com",
+    "Website": "www.kent-africa.com",
+    "Address": "16 Muchai Road",
+    "City": "Nairobi",
+    "id_tag": "ENGPETEROKEMWA"
+  },
+  {
+    "Name": "Eng Wilfred Machuma",
+    "Title": "Senior Project Manager-Team Leader",
+    "Personal": "+254734622301",
+    "Office": "+254714128210",
+    "Email": "wilfred.machuma@kent-africa.com",
+    "Website": "www.kent-africa.com",
+    "Address": "16 Muchai Road",
+    "City": "Nairobi",
+    "id_tag": "ENGWILFREDMACHUMA"
+  },
+  {
+    "Name": "Abok Melchizedeck",
+    "Title": "Operation$ Compliance Coordinator",
+    "Personal": "+254735966228",
+    "Office": "+254714128210",
+    "Email": "melchy.abok@kent-africa.com",
+    "Website": "www.kent-africa.com",
+    "Address": "16 Muchai Road",
+    "City": "Nairobi",
+    "id_tag": "ABOKMELCHIZEDECK"
+  },
+  {
+    "Name": "Joseph Mutinda",
+    "Title": "People Officer",
+    "Personal": "+254706910957",
+    "Office": "+254714128210",
+    "Email": "joseph.mutinda@kent-africa.com",
+    "Website": "www.kent-africa.com",
+    "Address": "16 Muchai Road",
+    "City": "Nairobi",
+    "id_tag": "JOSEPHMUTINDA"
+  },
+  {
+    "Name": "Ann Mwaura",
+    "Title": "Finance Officer",
+    "Personal": "+254721703067",
+    "Office": "+254714128210",
+    "Email": "anne.mwaura@kent-africa.com",
+    "Website": "www.kent-africa.com",
+    "Address": "16 Muchai Road",
+    "City": "Nairobi",
+    "id_tag": "ANNMWAURA"
+  },
+  {
+    "Name": "Mark Kirathe",
+    "Title": "IT & Adminstration",
+    "Personal": "+254723165988",
+    "Office": "+254714128210",
+    "Email": "mark.kirathe@kent-africa.com",
+    "Website": "www.kent-africa.com",
+    "Address": "16 Muchai Road",
+    "City": "Nairobi",
+    "id_tag": "MARKKIRATHE"
+  },
+  {
+    "Name": "Abdalla Oruko",
+    "Title": "Team Leader-Coastal Region",
+    "Personal": "+254715903030",
+    "Office": "+254714128210",
+    "Email": "abdalla.oruko@kent-africa.com",
+    "Website": "www.kent-africa.com",
+    "Address": "16 Muchai Road",
+    "City": "Nairobi",
+    "id_tag": "ABDALLAORUKO"
+  },
+  {
+    "Name": "Amos Kiplagat",
+    "Title": "Structural Engineer",
+    "Personal": "+254720134783",
+    "Office": "+254714128210",
+    "Email": "amos.kiplagat@kent-africa.com",
+    "Website": "www.kent-africa.com",
+    "Address": "16 Muchai Road",
+    "City": "Nairobi",
+    "id_tag": "AMOSKIPLAGAT"
+  },
+  {
+    "Name": "Angela Muthoni",
+    "Title": "Project Cost Mngr",
+    "Personal": "+254707237523",
+    "Office": "+254714128210",
+    "Email": "angela.muthoni@kent-africa.com",
+    "Website": "www.kent-africa.com",
+    "Address": "16 Muchai Road",
+    "City": "Nairobi",
+    "id_tag": "ANGELAMUTHONI"
+  },
+  {
+    "Name": "Geoffrey Muraya",
+    "Title": "Creative Designer",
+    "Personal": "+254719403433",
+    "Office": "+254714128210",
+    "Email": "geoffrey.muraya@kent-africa.com",
+    "Website": "www.kent-africa.com",
+    "Address": "16 Muchai Road",
+    "City": "Nairobi",
+    "id_tag": "GEOFFREYMURAYA1"
+  },
+  {
+    "Name": "John Kamanga",
+    "Title": "Site Engineer",
+    "Personal": "+254703227197",
+    "Office": "+254714128210",
+    "Email": "john.kamanga@kent-africa.com",
+    "Website": "www.kent-africa.com",
+    "Address": "16 Muchai Road",
+    "City": "Nairobi",
+    "id_tag": "JOHNKAMANGA"
+  },
+  {
+    "Name": "leon Mudola",
+    "Title": "Design Manager Architect",
+    "Personal": "+254707674649",
+    "Office": "+254714128210",
+    "Email": "leone.mudola@kent-africa.com",
+    "Website": "www.kent-africa.com",
+    "Address": "16 Muchai Road",
+    "City": "Nairobi",
+    "id_tag": "LEONMUDOLA"
+  },
+  {
+    "Name": "Harrison Kanyua",
+    "Title": "Corporate Assistant",
+    "Personal": "+254716655457",
+    "Office": "+254714128210",
+    "Email": "harrison.kanyua@kent-africa.com",
+    "Website": "www.kent-africa.com",
+    "Address": "16 Muchai Road",
+    "City": "Nairobi",
+    "id_tag": "HARRISONKANYUA"
+  },
+  {
+    "Name": "Micheal Mugo Murangiri",
+    "Title": "Technical Inspector",
+    "Personal": "+254718168382",
+    "Office": "+254714128210",
+    "Email": "michaelmugo50@gmail.com",
+    "Website": "www.kent-africa.com",
+    "Address": "16 Muchai Road",
+    "City": "Nairobi",
+    "id_tag": "MICHEALMUGOMURANGIRI"
+  },
+  {
+    "Name": "Cloudia Jemo",
+    "Title": "Assistant Cost project Mngr",
+    "Personal": "+254768284870",
+    "Office": "+254714128210",
+    "Email": "cloudia.jemo@kent-africa.com",
+    "Website": "www.kent-africa.com",
+    "Address": "16 Muchai Road",
+    "City": "Nairobi",
+    "id_tag": "CLOUDIAJEMO"
+  },
+  {
+    "Name": "Prisca Mutheu",
+    "Title": "ESG Cordinator",
+    "Personal": "+254745677474",
+    "Office": "+254714128210",
+    "Email": "priscakay0416@gmail.com",
+    "Website": "www.kent-africa.com",
+    "Address": "16 Muchai Road",
+    "City": "Nairobi",
+    "id_tag": "PRISCAMUTHEU"
+  },
+  {
+    "Name": "Paul Kangethe Kamau",
+    "Title": "Projects",
+    "Personal": "+254112611978",
+    "Office": "+254714128210",
+    "Email": "kangethekamau001@gmail.com",
+    "Website": "www.kent-africa.com",
+    "Address": "16 Muchai Road",
+    "City": "Nairobi",
+    "id_tag": "PAULKANGETHEKAMAU"
+  },
+  {
+    "Name": "Jedidah Anyango",
+    "Title": "Projects",
+    "Personal": "+254748272562",
+    "Office": "+254714128210",
+    "Email": "anyangojedida@gmail.com",
+    "Website": "www.kent-africa.com",
+    "Address": "16 Muchai Road",
+    "City": "Nairobi",
+    "id_tag": "JEDIDAHANYANGO"
+  },
+  {
+    "Name": "Linet Ngina Mutave",
+    "Title": "Projects",
+    "Personal": "+254740817062",
+    "Office": "+254714128210",
+    "Email": "linetmutava@gmail.com",
+    "Website": "www.kent-africa.com",
+    "Address": "16 Muchai Road",
+    "City": "Nairobi",
+    "id_tag": "LINETNGINAMUTAVE"
+  },
+  {
+    "Name": "Josephine Washalla",
+    "Title": "Projects",
+    "Personal": "+254790075516",
+    "Office": "+254714128210",
+    "Email": "phinywashalla2@gmail.com",
+    "Website": "www.kent-africa.com",
+    "Address": "16 Muchai Road",
+    "City": "Nairobi",
+    "id_tag": "JOSEPHINEWASHALLA"
+  },
+  {
+    "Name": "Rodney Njuguna",
+    "Title": "Projects",
+    "Personal": "+254797180091",
+    "Office": "+254714128210",
+    "Email": "rodney.njuguna@kent-africa.com",
+    "Website": "www.kent-africa.com",
+    "Address": "16 Muchai Road",
+    "City": "Nairobi",
+    "id_tag": "RODNEYNJUGUNA"
+  },
+  {
+    "Name": "Peter Kimeli",
+    "Title": "HSSEQ Implementor $ Inspector",
+    "Personal": "+254727224900",
+    "Office": "+254714128210",
+    "Email": "peter.kimeli@kent-africa.com",
+    "Website": "www.kent-africa.com",
+    "Address": "17 Muchai Road",
+    "City": "Nairobi",
+    "id_tag": "PETERKIMELI"
+  }
+];
 
-    <script>
-        const data = [{"Name": "Geoffrey Muraya", "Title": "Creative Designer", "Personal": 254719403433, "Office": 254714128210, "Email": "geoffrey.muraya@kent-africa.com", "Website": "www.kent-africa.com", "Address": "16 Muchai Road", "City": "Nairobi", "id_tag": "GEOFFREYMURAYA"}, {"Name": "Eng Philip Murungi", "Title": "Chief Executive Officer", "Personal": 722997314, "Office": 254714128210, "Email": "pmurungi@kent-africa.com", "Website": "www.kent-africa.com", "Address": "16 Muchai Road", "City": "Nairobi", "id_tag": "ENGPHILIPMURUNGI"}, {"Name": "Eng peter Okemwa", "Title": "Chief Technical  Officer.", "Personal": 721427898, "Office": 254714128210, "Email": "peter.okemwa@kent-africa.com", "Website": "www.kent-africa.com", "Address": "16 Muchai Road", "City": "Nairobi", "id_tag": "ENGPETEROKEMWA"}, {"Name": "Eng Wilfred Machuma", "Title": "Senior Project Manager-Team Leader", "Personal": 734622301, "Office": 254714128210, "Email": "wilfred.machuma@kent-africa.com", "Website": "www.kent-africa.com", "Address": "16 Muchai Road", "City": "Nairobi", "id_tag": "ENGWILFREDMACHUMA"}, {"Name": "Abok Melchizedeck", "Title": "Operation$ Compliance Coordinator", "Personal": 735966228, "Office": 254714128210, "Email": "melchy.abok@kent-africa.com", "Website": "www.kent-africa.com", "Address": "16 Muchai Road", "City": "Nairobi", "id_tag": "ABOKMELCHIZEDECK"}, {"Name": "Joseph Mutinda", "Title": "People Officer", "Personal": 706910957, "Office": 254714128210, "Email": "joseph.mutinda@kent-africa.com", "Website": "www.kent-africa.com", "Address": "16 Muchai Road", "City": "Nairobi", "id_tag": "JOSEPHMUTINDA"}, {"Name": "Ann Mwaura", "Title": "Finance Officer", "Personal": 721703067, "Office": 254714128210, "Email": "anne.mwaura@kent-africa.com", "Website": "www.kent-africa.com", "Address": "16 Muchai Road", "City": "Nairobi", "id_tag": "ANNMWAURA"}, {"Name": "Mark Kirathe", "Title": "IT & Adminstration", "Personal": 723165988, "Office": 254714128210, "Email": "mark.kirathe@kent-africa.com", "Website": "www.kent-africa.com", "Address": "16 Muchai Road", "City": "Nairobi", "id_tag": "MARKKIRATHE"}, {"Name": "Abdalla Oruko", "Title": "Team Leader-Coastal Region", "Personal": 715903030, "Office": 254714128210, "Email": "abdalla.oruko@kent-africa.com", "Website": "www.kent-africa.com", "Address": "16 Muchai Road", "City": "Nairobi", "id_tag": "ABDALLAORUKO"}, {"Name": "Amos Kiplagat", "Title": "Structural Engineer", "Personal": 720134783, "Office": 254714128210, "Email": "amos.kiplagat@kent-africa.com", "Website": "www.kent-africa.com", "Address": "16 Muchai Road", "City": "Nairobi", "id_tag": "AMOSKIPLAGAT"}, {"Name": "Angela Muthoni", "Title": "Project Cost Mngr", "Personal": 707237523, "Office": 254714128210, "Email": "angela.muthoni@kent-africa.com", "Website": "www.kent-africa.com", "Address": "16 Muchai Road", "City": "Nairobi", "id_tag": "ANGELAMUTHONI"}, {"Name": "Geoffrey Muraya", "Title": "Creative Designer", "Personal": 719403433, "Office": 254714128210, "Email": "geoffrey.muraya@kent-africa.com", "Website": "www.kent-africa.com", "Address": "16 Muchai Road", "City": "Nairobi", "id_tag": "GEOFFREYMURAYA"}, {"Name": "John Kamanga", "Title": "Site Engineer", "Personal": 703227197, "Office": 254714128210, "Email": "john.kamanga@kent-africa.com", "Website": "www.kent-africa.com", "Address": "16 Muchai Road", "City": "Nairobi", "id_tag": "JOHNKAMANGA"}, {"Name": "leon Mudola", "Title": "Design Manager Architect", "Personal": 707674649, "Office": 254714128210, "Email": "leone.mudola@kent-africa.com", "Website": "www.kent-africa.com", "Address": "16 Muchai Road", "City": "Nairobi", "id_tag": "LEONMUDOLA"}, {"Name": "Harrison Kanyua", "Title": "Corporate Assistant", "Personal": 716655457, "Office": 254714128210, "Email": "harrison.kanyua@kent-africa.com", "Website": "www.kent-africa.com", "Address": "16 Muchai Road", "City": "Nairobi", "id_tag": "HARRISONKANYUA"}, {"Name": "Micheal Mugo Murangiri", "Title": "Technical Inspector", "Personal": 718168382, "Office": 254714128210, "Email": "michaelmugo50@gmail.com", "Website": "www.kent-africa.com", "Address": "16 Muchai Road", "City": "Nairobi", "id_tag": "MICHEALMUGOMURANGIRI"}, {"Name": "Cloudia Jemo", "Title": "Assistant Cost project Mngr", "Personal": 768284870, "Office": 254714128210, "Email": "cloudia.jemo@kent-africa.com", "Website": "www.kent-africa.com", "Address": "16 Muchai Road", "City": "Nairobi", "id_tag": "CLOUDIAJEMO"}, {"Name": "Prisca Mutheu", "Title": "ESG Cordinator", "Personal": 745677474, "Office": 254714128210, "Email": "priscakay0416@gmail.com", "Website": "www.kent-africa.com", "Address": "16 Muchai Road", "City": "Nairobi", "id_tag": "PRISCAMUTHEU"}, {"Name": "Paul Kangethe Kamau", "Title": "Projects", "Personal": 112611978, "Office": 254714128210, "Email": "kangethekamau001@gmail.com ", "Website": "www.kent-africa.com", "Address": "16 Muchai Road", "City": "Nairobi", "id_tag": "PAULKANGETHEKAMAU"}, {"Name": "Jedidah Anyango", "Title": "Projects", "Personal": 748272562, "Office": 254714128210, "Email": "anyangojedida@gmail.com", "Website": "www.kent-africa.com", "Address": "16 Muchai Road", "City": "Nairobi", "id_tag": "JEDIDAHANYANGO"}, {"Name": "Linet Ngina Mutave", "Title": "Projects", "Personal": 740817062, "Office": 254714128210, "Email": "linetmutava@gmail.com", "Website": "www.kent-africa.com", "Address": "16 Muchai Road", "City": "Nairobi", "id_tag": "LINETNGINAMUTAVE"}, {"Name": "Josephine Washalla", "Title": "Projects", "Personal": 790075516, "Office": 254714128210, "Email": "phinywashalla2@gmail.com", "Website": "www.kent-africa.com", "Address": "16 Muchai Road", "City": "Nairobi", "id_tag": "JOSEPHINEWASHALLA"}, {"Name": "Rodney Njuguna", "Title": "Projects", "Personal": 797180091, "Office": 254714128210, "Email": "rodney.njuguna@kent-africa.com", "Website": "www.kent-africa.com", "Address": "16 Muchai Road", "City": "Nairobi", "id_tag": "RODNEYNJUGUNA"}, {"Name": "Peter Kimeli", "Title": "HSSEQ Implementor $ Inspector", "Personal": 727224900, "Office": 254714128210, "Email": "peter.kimeli@kent-africa.com", "Website": "www.kent-africa.com", "Address": "17 Muchai Road", "City": "Nairobi", "id_tag": "PETERKIMELI"}];
-        const container = document.getElementById('container');
+function fmtPhone(p) {
+    if (p === null || p === undefined) return '';
+    let d = String(p).replace(/\D/g, '');
+    if (d.startsWith('0')) d = d.slice(1);
+    if (!d.startsWith('254')) d = '254' + d;
+    return '+' + d;
+}
+function cleanEmail(e) { return (e || '').trim(); }
 
-        function showCard() {
-            // Get the ID from the URL (the part after the #)
-            const currentTag = window.location.hash.substring(1).toUpperCase();
-            
-            document.querySelectorAll('.card').forEach(c => {
-                if (!currentTag || c.id === currentTag) {
-                    c.classList.add('active');
-                } else {
-                    c.classList.remove('active');
-                }
-            });
-        }
+function buildVCard(s) {
+    const name = (s.Name || '').trim();
+    const title = (s.Title || '').replace(/\$/g, '&');
+    const cell = fmtPhone(s.Personal);
+    const work = fmtPhone(s.Office);
+    const email = cleanEmail(s.Email);
+    const web = (s.Website || '').replace(/^https?:\/\//, '');
+    const addr = (s.Address || '').trim();
+    const city = (s.City || 'Nairobi').trim();
+    const lines = [
+        'BEGIN:VCARD', 'VERSION:3.0',
+        'N:' + name + ';;;', 'FN:' + name,
+        'ORG:Kent Africa Limited',
+        'TITLE:' + title,
+        'TEL;TYPE=CELL:' + cell,
+        'TEL;TYPE=WORK:' + work,
+        'EMAIL;TYPE=WORK:' + email,
+        'URL:https://' + web,
+        'ADR;TYPE=WORK:;;' + addr + ';' + city + ';;;Kenya',
+        'END:VCARD'
+    ];
+    return lines.join('\r\n');
+}
 
-        data.forEach(s => {
-            const div = document.createElement('div');
-            div.className = 'card';
-            div.id = s.id_tag; // This matches the QR code tag
-            
-            div.innerHTML = `
-                <div class="header">
-                    <img src="photos/${s.Name}.jpg" class="profile-img" onerror="this.src='https://ui-avatars.com/api/?name=${s.Name}'">
-                    <h2>${s.Name}</h2>
-                    <p>${s.Title}</p>
-                </div>
-                <div class="info">
-                    <p><b>Phone:</b> ${s.Personal}</p>
-                    <p><b>Office:</b> ${s.Office}</p>
-                    <p><b>Email:</b> ${s.Email}</p>
-                </div>
-                <div class="btn-row">
-                    <button class="btn save" onclick="downloadV('${s.Name}','${s.Personal}','${s.Email}')">Save Contact</button>
-                    <button class="btn copy" onclick="copyE('${s.Email}')">Copy Email</button>
-                </div>
-            `;
-            container.appendChild(div);
-        });
+function downloadVCard(s) {
+    const v = buildVCard(s);
+    const blob = new Blob([v], { type: 'text/vcard' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = (s.Name || 'contact').trim() + '.vcf';
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 1000);
+}
 
-        function downloadV(n,p,e){
-            const v = `BEGIN:VCARD\nVERSION:3.0\nFN:${n}\nTEL:${p}\nEMAIL:${e}\nEND:VCARD`;
-            const b = new Blob([v],{type:'text/vcard'});
-            const a = document.createElement('a');
-            a.href = URL.createObjectURL(b); a.download = n+'.vcf'; a.click();
-        }
-        function copyE(e){ navigator.clipboard.writeText(e); alert('Copied!'); }
+function cardHTML(s, idx) {
+    const name = (s.Name || '').trim();
+    const title = (s.Title || '').replace(/\$/g, '&');
+    const cell = fmtPhone(s.Personal);
+    const work = fmtPhone(s.Office);
+    const email = cleanEmail(s.Email);
+    const web = (s.Website || '').replace(/^https?:\/\//, '');
+    const addr = (s.Address || '').trim();
+    const city = (s.City || 'Nairobi').trim();
+    const q = encodeURIComponent(addr + ', ' + city + ', Kenya');
+    return `
+    <div class="card-container" id="${(s.id_tag || '').toUpperCase()}">
+        <div class="header">
+            <div class="profile-pic-container">
+                <img src="photos/${name}.jpg" alt="${name}" class="profile-pic"
+                     onerror="this.onerror=null; this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&amp;background=4A7CB8&amp;color=fff&amp;size=128';">
+            </div>
+            <div class="name">${name}</div>
+            <div class="title">${title}</div>
+        </div>
+        <div class="floating-actions">
+            <a href="tel:${cell}" class="action-btn" aria-label="Call"><i class="fa-solid fa-phone"></i></a>
+            <a href="mailto:${email}" class="action-btn" aria-label="Email"><i class="fa-solid fa-envelope"></i></a>
+            <a href="https://www.google.com/maps/search/?api=1&amp;query=${q}" class="action-btn" aria-label="Map" target="_blank"><i class="fa-solid fa-location-dot"></i></a>
+        </div>
+        <div class="content">
+            <div class="info-item"><div class="info-icon"><i class="fa-solid fa-phone"></i></div><div class="info-content"><div class="info-label">Personal</div><a href="tel:${cell}" class="info-value">${cell}</a></div></div>
+            <div class="info-item"><div class="info-icon"><i class="fa-solid fa-building"></i></div><div class="info-content"><div class="info-label">Office</div><a href="tel:${work}" class="info-value">${work}</a></div></div>
+            <div class="info-item"><div class="info-icon"><i class="fa-solid fa-envelope"></i></div><div class="info-content"><div class="info-label">Email</div><a href="mailto:${email}" class="info-value">${email}</a></div></div>
+            <div class="info-item"><div class="info-icon"><i class="fa-solid fa-globe"></i></div><div class="info-content"><div class="info-label">Website</div><a href="https://${web}" class="info-value" target="_blank">${web}</a></div></div>
+            <div class="info-item"><div class="info-icon"><i class="fa-solid fa-location-dot"></i></div><div class="info-content"><div class="info-label">Location</div><div class="info-value">${addr}, ${city}, Kenya</div><a href="https://www.google.com/maps/search/?api=1&amp;query=${q}" class="map-btn" target="_blank">Show on Map</a></div></div>
+            <div class="info-item"><div class="info-icon"><i class="fa-solid fa-briefcase"></i></div><div class="info-content"><div class="info-label">Kent Africa Limited</div><div class="info-value">${title}</div></div></div>
+        </div>
+        <div class="footer">
+            <button type="button" class="add-contact-btn" data-idx="${idx}"><i class="fa-regular fa-user"></i> Add Contact</button>
+        </div>
+    </div>`;
+}
 
-        window.onhashchange = showCard;
-        showCard();
-    </script>
+const container = document.getElementById('container');
+data.forEach((s, i) => { container.insertAdjacentHTML('beforeend', cardHTML(s, i)); });
+
+container.addEventListener('click', (e) => {
+    const btn = e.target.closest('.add-contact-btn');
+    if (btn) downloadVCard(data[+btn.dataset.idx]);
+});
+
+function showCard() {
+    const tag = (window.location.hash || '').substring(1).toUpperCase();
+    document.querySelectorAll('.card-container').forEach(c => {
+        c.classList.toggle('active', !tag || c.id === tag);
+    });
+}
+window.onhashchange = showCard;
+showCard();
+</script>
 </body>
 </html>
